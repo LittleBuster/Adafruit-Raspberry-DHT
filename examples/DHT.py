@@ -19,7 +19,7 @@ DEV_DHT_22 = 22
 
 class AdafruitDHT():
 	"""
-	Python binding class for Asafruit C-library.
+	Python binding class for Adafruit C-library.
 	It may use for Python3 and Python2 languages.
 	"""
 	def load_lib(self):

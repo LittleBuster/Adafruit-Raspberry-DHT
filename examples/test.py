@@ -34,6 +34,9 @@ class MainTest(unittest.TestCase):
 		
 		self.assertNotEqual(res["temp"], "0.000000")
 		self.assertNotEqual(res["hum"], "0.000000")
+
+	def tearDown(self):
+		del self.dht
 		
 if __name__ == "__main__":
 	unittest.main()
