@@ -1,4 +1,10 @@
 all:
+	mkdir build/
+	mkdir build/temp.linux-armv6l/
+	mkdir build/release/
+	mkdir build/temp.linux-armv6l/source/
+	mkdir build/temp.linux-armv6l/source/Raspberry_Pi/
+
 	gcc -pthread -fno-strict-aliasing -march=armv6 -mfloat-abi=hard -mfpu=vfp -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -DNDEBUG -march=armv6 -mfloat-abi=hard -mfpu=vfp -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -fPIC -c source/_Raspberry_Pi_Driver.c -o build/temp.linux-armv6l/source/_Raspberry_Pi_Driver.o -std=gnu99
 
 	gcc -pthread -fno-strict-aliasing -march=armv6 -mfloat-abi=hard -mfpu=vfp -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -DNDEBUG -march=armv6 -mfloat-abi=hard -mfpu=vfp -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -fPIC -c source/common_dht_read.c -o build/temp.linux-armv6l/source/common_dht_read.o -std=gnu99
