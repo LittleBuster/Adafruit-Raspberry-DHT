@@ -20,6 +20,7 @@ install:
 
 uninstall:
 	rm /usr/lib/Raspberry_Pi_Driver.so
+	rm -rf build/
 
 clean:
 	rm -rf build/temp.linux-armv6l/source/*.*
