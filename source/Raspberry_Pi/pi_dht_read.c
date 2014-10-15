@@ -35,7 +35,8 @@
 // the data afterwards.
 #define DHT_PULSES 41
 
-int pi_dht_read(int type, int pin, float* humidity, float* temperature) {
+int pi_dht_read(int type, int pin, float* temperature, float* humidity) {
+
   // Validate humidity and temperature arguments and set them to zero.
   if (humidity == NULL || temperature == NULL) {
     return DHT_ERROR_ARGUMENT;
