@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<!--
+	Prologue by HTML5 UP
+	html5up.net | @n33co
+	Denisov Sergey 2014
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Погода Pi</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<!--[if lte IE 8]><script src="/media/css/ie/html5shiv.js"></script><![endif]-->
+		<script src="/media/js/jquery.min.js"></script>
+		<script src="/media/js/jquery.scrolly.min.js"></script>
+		<script src="/media/js/jquery.scrollzer.min.js"></script>
+		<script src="/media/js/skel.min.js"></script>
+		<script src="/media/js/skel-layers.min.js"></script>
+		<script src="/media/js/init.js"></script>
+		<noscript>
+			<link rel="stylesheet" href="/media/css/skel.css" />
+			<link rel="stylesheet" href="/media/css/style.css" />
+			<link rel="stylesheet" href="/media/css/style-wide.css" />
+		</noscript>
+		<!--[if lte IE 9]><link rel="stylesheet" href="/media/css/ie/v9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="/media/css/ie/v8.css" /><![endif]-->
+
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    		<script type="text/javascript">
+      		google.load("visualization", "1", {packages:["corechart"]});
+      		google.setOnLoadCallback(drawChart);
+      		function drawChart() {
+        		var data = google.visualization.arrayToDataTable([
+          			['Date', 'Влажность', 'Температура'],
+          			{% for row in weather %}          
+          			['{{row.time}}',{{row.hum}}, {{row.temp}}],
+          			{% endfor %}
+			]);
+      		
+        		var data2 = google.visualization.arrayToDataTable([
+          			['Date', 'Влажность', 'Температура'],
+          			{% for row in weather2 %}          
+          			['{{row.date}}',{{row.hum}}, {{row.temp}}],
+          		{% endfor %}
+        		]);		
+
+        var options = {
+          curveType: 'function',
+          title: 'Измерения по времени',	  
+      };
+
+	var options2 = {
+		title: 'Изменение по датам',
+	};
+    
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        var chart2 = new google.visualization.LineChart(document.getElementById('chart_div2'));
+
+	chart.draw(data, options);
+        chart2.draw(data2, options2);
+      }
+    </script>
+
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+	<script src="http://code.highcharts.com/modules/exporting.js"></script>
+	<script type="text/javascript">
+	
+
+		$(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: 'Snow depth at Vikjafjellet, Norway'
+        },
+        subtitle: {
+            text: 'Irregular time data in Highcharts JS'
+        },
+        xAxis: {
+            title: {
+                text: 'Date'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Snow depth (m)'
+            },
+            min: 0
+        },
+        tooltip: {
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x:%e. %b}: {point.y:.2f} m'
+        },
+
+        series: [{
+            name: 'Температура:',
+            data: [
+                {% for row in weather %}
+                [{{row.time}},{{row.temp}}],
+                {% endfor %}
+            ]
+        }]
+    });
+});
+</script>
+	</head>
+	<body>
+
+		<!-- Header -->
+			<div id="header" class="skel-layers-fixed">
+
+				<div class="top">
+
+					<!-- Logo -->
+						<div id="logo">
+							<span class="image avatar48"><img src="/media/images/avatar.jpg" alt="" /></span>
+							<h1 id="title">Denisov Sergey</h1>
+							<p>Student</p>
+						</div>
+
+					<!-- Nav -->
+						<nav id="nav">
+							<ul>
+								<li><a href="#top" id="top-link" class="skel-layers-ignoreHref"><span class="icon fa-home">Intro</span></a></li>
+								<li><a href="#portfolio" id="portfolio-link" class="skel-layers-ignoreHref"><span class="icon fa-th">Portfolio</span></a></li>
+								<li><a href="#about" id="about-link" class="skel-layers-ignoreHref"><span class="icon fa-user">About Me</span></a></li>
+								<li><a href="#contact" id="contact-link" class="skel-layers-ignoreHref"><span class="icon fa-envelope">Contact</span></a></li>
+							</ul>
+						</nav>
+						
+				</div>
+				
+				<div class="bottom">
+
+					<!-- Social Icons -->
+						<ul class="icons">
+							<li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+							<li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+							<li><a href="#" class="icon fa-github"><span class="label">Github</span></a></li>
+							<li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
+							<li><a href="#" class="icon fa-envelope"><span class="label">Email</span></a></li>
+						</ul>				
+				</div>
+			
+			</div>
+
+		<!-- Main -->
+			<div id="main">
+
+				<!-- Intro -->
+					<section id="top" class="one dark cover">
+						<div class="container">
+
+							<header>
+								<h2 class="alt">ПОГОДА</strong>, by Vovan and Sergey
+							</header>
+							
+							<footer>
+								<a href="#portfolio" class="button scrolly">Измерения</a>
+							</footer>
+
+						</div>
+					</section>
+					
+				<!-- Portfolio -->
+					<section id="portfolio" class="two">
+						<div class="container">
+					
+							<header>
+								<h2>Измерения температуры и влажности</h2>
+							</header>
+							<center><h3>Сейчас:</h2></center>
+							<h4>
+							<center><b>Температура: </b><b><font color="red">{{now_weather.temp}}</font></b> <b>Влажность: </b> <b><font color="blue">{{now_weather.hum}}</font></b></center>
+							</h4>
+							
+							<!--<div id="container" style="height: 400px"></div> -->
+
+							<!--<a href="/test/">Секретная страница</a>
+							-->
+							<div id="chart_div" style="width: 900px; height: 500px;"></div>
+							<div id="chart_div2" style="width: 900px; height: 500px;"></div>
+							<form method="get" action="/send/">
+								<div class="12u">
+									<input type="submit" value="Измерить" />
+								</div>
+							</form>
+						</div>
+					</section>
+			</div>
+
+		<!-- Footer -->
+			<div id="footer">
+				
+				<!-- Copyright -->
+					<ul class="copyright">
+						<li>&copy; Denisov Foundation. All rights reserved. 2014</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				
+			</div>
+
+	</body>
+</html>

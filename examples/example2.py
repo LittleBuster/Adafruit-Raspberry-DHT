@@ -25,7 +25,7 @@ class Worker(Thread):
 			res = self.dht.get_temp_and_hum(DEV_DHT_22, 3)
 			date = datetime.datetime.now()
 			print("".join(("[", str(date).split(".")[0], "]")), "Temperature is:", res["temp"], "Humidity is:", res["hum"])
-			time.sleep(5)
+			time.sleep(1)
 
 def main():
 	dht = AdafruitDHT()

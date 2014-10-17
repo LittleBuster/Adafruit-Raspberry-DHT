@@ -5,6 +5,12 @@ AllPythons library to read the DHT series of humidity and temperature sensors on
 
 Currently the library is only tested with Python 2.7/3.4.
 
+Dependencies (for Archlinux):
+
+````
+make, gcc, python-django, python-pip, pymysql (pip)
+````
+
 To build lib type:
 
 ````
