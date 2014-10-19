@@ -16,10 +16,9 @@ all:
 
 	gcc -pthread -shared -Wl,-O1,--sort-common,--as-needed,-z,relro build/temp.linux-armv6l/source/_Raspberry_Pi_Driver.o build/temp.linux-armv6l/source/common_dht_read.o build/temp.linux-armv6l/source/Raspberry_Pi/pi_dht_read.o build/temp.linux-armv6l/source/Raspberry_Pi/pi_mmio.o -L/usr/lib -lrt -o build/release/Raspberry_Pi_Driver.so
 
-	cp -r DjangoSite /root/DjangoSite
-
 install:
 	cp build/release/Raspberry_Pi_Driver.so /usr/lib/Raspberry_Pi_Driver.so
+	cp -r DjangoSite /root/DjangoSite
 
 uninstall:
 	rm /usr/lib/Raspberry_Pi_Driver.so
