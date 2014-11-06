@@ -21,6 +21,8 @@
 // SOFTWARE.
 
 // Simple fast memory-mapped GPIO library for the Raspberry Pi.
+#pragma once
+
 #ifndef PI_MMIO_H
 #define PI_MMIO_H
 
