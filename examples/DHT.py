@@ -26,7 +26,7 @@ class AdafruitDHT():
 		"""
 		Load C-language library from /usr/lib
 		"""
-		self.lib = ctypes.cdll.LoadLibrary("/usr/lib/Raspberry_Pi_Driver.so")
+		self.lib = ctypes.cdll.LoadLibrary("/usr/lib/libdht_driver.so")
 
 	def get_temp_and_hum(self, device_id, pin):
 		"""
@@ -35,7 +35,7 @@ class AdafruitDHT():
 		"""
 		while True:
 			out = {}
-			res = ctypes.c_char_p( self.lib.get_temp_and_hum(device_id, pin))
+			res = ctypes.c_char_p( self.lib.pi_dht_read(device_id, pin))
 			res_s = res.value.decode("utf-8")
 			del res
 						
@@ -47,3 +47,4 @@ class AdafruitDHT():
 				out["hum"] = round( float(out["hum"]), 1 )
 				return out
 			time.sleep(0.1)
+
