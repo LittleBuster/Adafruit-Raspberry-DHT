@@ -11,16 +11,10 @@ Dependencies (for Archlinux):
 make, gcc, python-django, python-pip, pymysql (pip)
 ````
 
-To build lib type:
+To build and install lib print:
 
 ````
 make
-````
-
-Install the library:
-
-````
-make install
 ````
 
 See example of usage in the examples folder.
