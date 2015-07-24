@@ -35,20 +35,14 @@
 // the data afterwards.
 #define DHT_PULSES 41
 
-char * pi_dht_read( int type, int pin ) {
-	
-  char res[100];
-  char hum[100];
-  memset(res, 0, 100);
-  memset(hum, 0, 100);
-  float temperature, humidity;
-
-  temperature = 0.0f;
-  humidity = 0.0f;
+size_t pi_dht_read(int type, int pin, float *temp, float *hum)
+{
+  *temp = 0.0f;
+  *hum = 0.0f;
 
   // Initialize GPIO library.
   if (pi_mmio_init() < 0) {
-    return NULL;
+    return 0;
   }
 
   // Store the count that each DHT bit pulse is low and high.
@@ -84,7 +78,7 @@ char * pi_dht_read( int type, int pin ) {
     if (++count >= DHT_MAXCOUNT) {
       // Timeout waiting for response.
       set_default_priority();
-      return NULL;
+      return 0;
     }
   }
 
@@ -95,7 +89,7 @@ char * pi_dht_read( int type, int pin ) {
       if (++pulseCounts[i] >= DHT_MAXCOUNT) {
         // Timeout waiting for response.
         set_default_priority();
-        return NULL;
+        return 0;
       }
     }
     // Count how long pin is high and store in pulseCounts[i+1]
@@ -103,7 +97,7 @@ char * pi_dht_read( int type, int pin ) {
       if (++pulseCounts[i+1] >= DHT_MAXCOUNT) {
         // Timeout waiting for response.
         set_default_priority();
-        return NULL;
+        return 0;
       }
     }
   }
@@ -142,26 +136,20 @@ char * pi_dht_read( int type, int pin ) {
   if (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) {
     if (type == DHT11) {
       // Get humidity and temp for DHT11 sensor.
-      humidity = (float)data[0];
-      temperature = (float)data[2];
+      *hum = (float)data[0];
+      *temp = (float)data[2];
     }
     else if (type == DHT22) {
       // Calculate humidity and temp for DHT22 sensor.
-      humidity = (data[0] * 256 + data[1]) / 10.0f;
-      temperature = ((data[2] & 0x7F) * 256 + data[3]) / 10.0f;
+      *hum = (data[0] * 256 + data[1]) / 10.0f;
+      *temp = ((data[2] & 0x7F) * 256 + data[3]) / 10.0f;
       if (data[2] & 0x80) {
-        temperature *= -1.0f;
+        *temp *= -1.0f;
       }
     }
-
-   sprintf(res, "%f", temperature);
-   sprintf(hum, "%f", humidity);
-   strcat(res, "%");
-   strcat(res, hum);
-
-    return res;
+    return 1;
   }
   else {
-    return res;
+    return 0;
   }
 }
