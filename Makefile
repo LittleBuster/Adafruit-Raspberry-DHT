@@ -1,17 +1,25 @@
-all:
-	gcc -fPIC -c common_dht_read.c -c -std=gnu99 -lrt
-	gcc -fPIC -c pi_dht_read.c -c -I. -std=gnu99 -lrt
-	gcc -fPIC -c pi_mmio.c -c -std=gnu99 -lrt
-	gcc -shared common_dht_read.o pi_dht_read.o pi_mmio.o -o libdht_driver.so -lrt
+CC=gcc
+CFLAGS=-I. -pedantic -Wall -O2 -fPIC -std=gnu99
+LDFLAGS=-lrt
+
+all: libdht
+
+libdht: piio.o dht22.o
+	$(CC) piio.o dht22.o -shared -o libdht22.so $(CFLAGS) $(LDFLAGS)
+
+piio: piio.c
+	$(CC) -c piio.c $(CFLAGS) $(LDFLAGS)
+
+sht22.o: sht22.c
+	$(CC) -c dht22.c $(CFLAGS) $(LDFLAGS)
 
 install:
-	cp libdht_driver.so /usr/lib/
-	cp pi_dht_read.h /usr/include/
-	cp common_dht_read.h /usr/include/
+	sudo cp libdht22.so /usr/lib/
+	sudo cp dht22.h /usr/include/
 
 remove:
-	rm /usr/lib/libdht_driver.so
-	rm /usr/include/dht.h
+	rm /usr/lib/libdht22.so
+	rm /usr/include/dht22.h
 
 clean:
 	rm -rf *.o *.so
