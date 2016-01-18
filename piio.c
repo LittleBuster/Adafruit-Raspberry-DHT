@@ -110,7 +110,7 @@ void pi_sleep_millis(uint32_t millis)
     while (clock_nanosleep(CLOCK_MONOTONIC, 0, &sleep, &sleep) && errno == EINTR);
 }
 
-void set_max_priority(void)
+void pi_max_priority(void)
 {
     struct sched_param sched;
 
@@ -121,7 +121,7 @@ void set_max_priority(void)
     sched_setscheduler(0, SCHED_FIFO, &sched);
 }
 
-void set_default_priority(void)
+void pi_default_priority(void)
 {
     struct sched_param sched;
 

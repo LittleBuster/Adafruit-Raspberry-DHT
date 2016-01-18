@@ -7,10 +7,10 @@ all: libdht
 libdht: piio.o dht22.o
 	$(CC) piio.o dht22.o -shared -o libdht22.so $(CFLAGS) $(LDFLAGS)
 
-piio: piio.c
+piio.o: piio.c
 	$(CC) -c piio.c $(CFLAGS) $(LDFLAGS)
 
-sht22.o: sht22.c
+dht22.o: dht22.c
 	$(CC) -c dht22.c $(CFLAGS) $(LDFLAGS)
 
 install:
