@@ -23,12 +23,24 @@
 
 #include "common_dht_read.h"
 
-// Read DHT sensor connected to GPIO pin (using BCM numbering).  Humidity and temperature will be
-// returned in the provided parameters. If a successfull reading could be made a value of 0
+// Read DHT sensor connected to GPIO pin (using BCM numbering).  Humidity and temperature will be 
+// returned in the provided parameters. If a successfull reading could be made a value of 0 
 // (DHT_SUCCESS) will be returned.  If there was an error reading the sensor a negative value will
 // be returned.  Some errors can be ignored and retried, specifically DHT_ERROR_TIMEOUT or DHT_ERROR_CHECKSUM.
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define DHT22 22
 
-extern size_t pi_dht_read(int type, int pin, float *temp, float *hum)
+typedef struct _temp_hum {
+	float temperature;
+	float humidity;
+} TempHum;
+
+extern int pi_dht_read( int type, int pin, TempHum *th );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -35,14 +35,16 @@
 // the data afterwards.
 #define DHT_PULSES 41
 
-size_t pi_dht_read(int type, int pin, float *temp, float *hum)
-{
-  *temp = 0.0f;
-  *hum = 0.0f;
+int pi_dht_read( int type, int pin, TempHum *th ) {
+
+  // Validate humidity and temperature arguments and set them to zero.
+  if (th == NULL) {
+    return DHT_ERROR_ARGUMENT;
+  }
 
   // Initialize GPIO library.
   if (pi_mmio_init() < 0) {
-    return 0;
+    return DHT_ERROR_GPIO;
   }
 
   // Store the count that each DHT bit pulse is low and high.
@@ -78,7 +80,7 @@ size_t pi_dht_read(int type, int pin, float *temp, float *hum)
     if (++count >= DHT_MAXCOUNT) {
       // Timeout waiting for response.
       set_default_priority();
-      return 0;
+      return DHT_ERROR_TIMEOUT;
     }
   }
 
@@ -89,7 +91,7 @@ size_t pi_dht_read(int type, int pin, float *temp, float *hum)
       if (++pulseCounts[i] >= DHT_MAXCOUNT) {
         // Timeout waiting for response.
         set_default_priority();
-        return 0;
+        return DHT_ERROR_TIMEOUT;
       }
     }
     // Count how long pin is high and store in pulseCounts[i+1]
@@ -97,7 +99,7 @@ size_t pi_dht_read(int type, int pin, float *temp, float *hum)
       if (++pulseCounts[i+1] >= DHT_MAXCOUNT) {
         // Timeout waiting for response.
         set_default_priority();
-        return 0;
+        return DHT_ERROR_TIMEOUT;
       }
     }
   }
@@ -136,20 +138,20 @@ size_t pi_dht_read(int type, int pin, float *temp, float *hum)
   if (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) {
     if (type == DHT11) {
       // Get humidity and temp for DHT11 sensor.
-      *hum = (float)data[0];
-      *temp = (float)data[2];
+      th->humidity = (float)data[0];
+      th->temperature = (float)data[2];
     }
     else if (type == DHT22) {
       // Calculate humidity and temp for DHT22 sensor.
-      *hum = (data[0] * 256 + data[1]) / 10.0f;
-      *temp = ((data[2] & 0x7F) * 256 + data[3]) / 10.0f;
+      th->humidity = (data[0] * 256 + data[1]) / 10.0f;
+      th->temperature = ((data[2] & 0x7F) * 256 + data[3]) / 10.0f;
       if (data[2] & 0x80) {
-        *temp *= -1.0f;
+        th->temperature *= -1.0f;
       }
     }
-    return 1;
+    return DHT_SUCCESS;
   }
   else {
-    return 0;
+    return DHT_ERROR_CHECKSUM;
   }
 }
