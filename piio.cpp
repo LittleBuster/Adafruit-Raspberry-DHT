@@ -12,6 +12,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #include <errno.h>
 #include <sched.h>
 #include <string.h>
@@ -23,8 +24,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <string>
 #include "piio.h"
+
+using namespace std;
 
 
 #define BASE 0x20000000
@@ -32,60 +35,52 @@
 #define GPIO_LENGTH 4096
 
 
-static struct {
-    volatile uint32_t *gpio;
-} io = {
-    .gpio = NULL,
-};
-
-
-int pi_init(void)
+void GPIO::init(void)
 {
     int fd;
 
-    if (io.gpio != NULL)
-        return 0;
+    if (this->m_gpio != NULL)
+        return;
 
     fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (fd == -1)
-        return ERR_DEVMEM;
+        throw string("Error open /dev/mem");
 
-    io.gpio = (uint32_t *)mmap(NULL, GPIO_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
+    this->m_gpio = (uint32_t *)mmap(NULL, GPIO_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
     close(fd);
-    if (io.gpio == MAP_FAILED) {
-        io.gpio = NULL;
-        return ERR_MMAP;
+    if (this->m_gpio == MAP_FAILED) {
+        this->m_gpio = NULL;
+        throw string("Error init mmap");
     }
-    return 0;
 }
 
-void pi_set_input(const int gpio)
+void GPIO::setInput(const int gpio)
 {
-    *(io.gpio + ((gpio) / 10)) &= ~(7 << (((gpio) % 10) * 3));
+    *(this->m_gpio + ((gpio) / 10)) &= ~(7 << (((gpio) % 10) * 3));
 }
 
-void pi_set_output(const int gpio)
+void GPIO::setOutput(const int gpio)
 {
-    pi_set_input(gpio);
-    *(io.gpio + ((gpio) / 10)) |=  (1 << (((gpio) % 10) * 3));
+    setInput(gpio);
+    *(this->m_gpio + ((gpio) / 10)) |=  (1 << (((gpio) % 10) * 3));
 }
 
-void pi_set_high(const int gpio)
+void GPIO::setHigh(const int gpio)
 {
-    *(io.gpio + 7) = 1 << gpio;
+    *(this->m_gpio + 7) = 1 << gpio;
 }
 
-void pi_set_low(const int gpio)
+void GPIO::setLow(const int gpio)
 {
-    *(io.gpio + 10) = 1 << gpio;
+    *(this->m_gpio + 10) = 1 << gpio;
 }
 
-uint32_t pi_read(const int gpio)
+uint32_t GPIO::read(const int gpio)
 {
-    return *(io.gpio + 13) & (1 << gpio);
+    return *(this->m_gpio + 13) & (1 << gpio);
 }
 
-void pi_wait_millis(uint32_t millis)
+void GPIO::waitMillis(uint32_t millis)
 {
     struct timeval deltatime;
     struct timeval walltime;
@@ -101,7 +96,7 @@ void pi_wait_millis(uint32_t millis)
         gettimeofday(&walltime, NULL);
 }
 
-void pi_sleep_millis(uint32_t millis)
+void GPIO::sleepMillis(uint32_t millis)
 {
     struct timespec sleep;
 
@@ -110,18 +105,19 @@ void pi_sleep_millis(uint32_t millis)
     while (clock_nanosleep(CLOCK_MONOTONIC, 0, &sleep, &sleep) && errno == EINTR);
 }
 
-void pi_max_priority(void)
+void GPIO::maxPriority(void)
 {
     struct sched_param sched;
 
     memset(&sched, 0, sizeof(sched));
     /* Use FIFO scheduler with highest priority for the lowest chance of the
-       kernel context switching.*/
+     * kernel context switching
+     */
     sched.sched_priority = sched_get_priority_max(SCHED_FIFO);
     sched_setscheduler(0, SCHED_FIFO, &sched);
 }
 
-void pi_default_priority(void)
+void GPIO::defaultPriority(void)
 {
     struct sched_param sched;
 

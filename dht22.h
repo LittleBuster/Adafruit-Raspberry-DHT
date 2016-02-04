@@ -17,30 +17,48 @@
 #define __DHT22_H__
 
 #include <stdint.h>
+#include <memory>
+
+using namespace std;
 
 
-struct dht22 {
-    uint8_t pin;
-    uint8_t data[5];
+class IGPIO;
+
+
+class IDHT22
+{
+public:
+    virtual void init(uint8_t pin) = 0;
+    virtual void readData(float &temp, float &hum) = 0;
 };
 
 
-/**
- * DHT22 library initialization
- * @dht: dht22 structure
- * @pin: dht22 gpio number
- *
- * returns 0 if succeful
- * returns -1 if fail init
- */
-int dht22_init(struct dht22 *dht, uint8_t pin);
+class DHT22: public IDHT22
+{
+private:
+    uint8_t pin;
+    uint8_t data[5];
+    shared_ptr<IGPIO> m_gpio;
 
-/**
- * @dht: dht22 structure
- * @temp: temperature pointer
- * @hum: humidity pointer
- */
-int dht22_read_data(struct dht22 *dht, float *temp, float *hum);
+public:
+    DHT22();
+
+    /**
+     * DHT22 library initialization
+     * @pin: dht22 gpio number
+     *
+     * returns 0 if succeful
+     * returns -1 if fail init
+     */
+    void init(uint8_t pin);
+
+    /**
+     * Reading temperature and humidity
+     * @temp: temperature pointer
+     * @hum: humidity pointer
+     */
+    void readData(float &temp, float &hum);
+};
 
 
 #endif

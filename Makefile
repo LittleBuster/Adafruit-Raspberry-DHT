@@ -1,21 +1,21 @@
-CC=gcc
-CFLAGS=-I. -pedantic -Wall -O2 -fPIC -std=gnu99
+CC=g++
+CXXFLAGS=-I. -pedantic -Wall -O2 -fPIC -std=c++11
 LDFLAGS=-lrt
 
 all: libdht
 
 libdht: piio.o dht22.o
-	$(CC) piio.o dht22.o -shared -o libdht22.so $(CFLAGS) $(LDFLAGS)
+	$(CC) piio.o dht22.o -shared -o libdht22.so $(CXXFLAGS) $(LDFLAGS)
 
-piio.o: piio.c
-	$(CC) -c piio.c $(CFLAGS) $(LDFLAGS)
+piio.o: piio.cpp
+	$(CC) -c piio.cpp $(CXXFLAGS) $(LDFLAGS)
 
-dht22.o: dht22.c
-	$(CC) -c dht22.c $(CFLAGS) $(LDFLAGS)
+dht22.o: dht22.cpp
+	$(CC) -c dht22.cpp $(CXXFLAGS) $(LDFLAGS)
 
 install:
-	sudo cp libdht22.so /usr/lib/
-	sudo cp dht22.h /usr/include/
+	cp libdht22.so /usr/lib/
+	cp dht22.h /usr/include/
 
 remove:
 	rm /usr/lib/libdht22.so

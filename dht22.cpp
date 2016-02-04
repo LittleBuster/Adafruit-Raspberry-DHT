@@ -28,38 +28,42 @@
 
 /* Number of bit pulses to expect from the DHT.  Note that this is 41 because
  * the first pulse is a constant 50 microsecond pulse, with 40 pulses to represent
- * the dht->data afterwards.
+ * the this->data afterwards.
  */
 #define DHT_PULSES 41
-#define ERR_TIMEOUT -1;
 
 
-int dht22_init(struct dht22 *dht, uint8_t pin)
+DHT22::DHT22()
 {
-    int ret_val;
-
-    dht->pin = pin;
-    memset(dht->data, 0x00, sizeof(uint8_t)*5);
-
-    ret_val = pi_init();
-    if (ret_val != 0)
-        return -1;
-    return 0;
+    this->m_gpio = make_shared<GPIO>();
 }
 
-int dht22_read_data(struct dht22 *dht, float *temp, float *hum)
+void DHT22::init(uint8_t pin)
+{
+    this->pin = pin;
+    memset(this->data, 0x00, sizeof(uint8_t)*5);
+
+    try {
+        m_gpio->init();
+    }
+    catch (const string &err) {
+        throw err;
+    }
+}
+
+void DHT22::readData(float &temp, float &hum)
 {
     uint32_t count = 0;
     uint32_t threshold = 0;
-    int pulseCounts[DHT_PULSES*2] = {0};
+    uint32_t pulseCounts[DHT_PULSES*2] = {0};
 
-    pi_set_output(dht->pin);
-    pi_max_priority();
-    pi_set_high(dht->pin);
-    pi_sleep_millis(500);
-    pi_set_low(dht->pin);
-    pi_wait_millis(20);
-    pi_set_input(dht->pin);
+    m_gpio->setOutput(this->pin);
+    m_gpio->maxPriority();
+    m_gpio->setHigh(this->pin);
+    m_gpio->sleepMillis(500);
+    m_gpio->setLow(this->pin);
+    m_gpio->waitMillis(20);
+    m_gpio->setInput(this->pin);
 
     /*
      * Need a very short delay before reading pins or else value
@@ -68,27 +72,27 @@ int dht22_read_data(struct dht22 *dht, float *temp, float *hum)
     for (volatile uint8_t i = 0; i < 50; ++i) {}
 
     /* Wait for DHT to pull pin low. */
-    while (pi_read(dht->pin))
+    while (m_gpio->read(this->pin))
         if (++count >= DHT_MAXCOUNT) {
-            pi_default_priority();
-            return ERR_TIMEOUT;
+            m_gpio->defaultPriority();
+            throw string("Error timeout.");
         }
 
     /* Record pulse widths for the expected result bits. */
     for (uint8_t i = 0; i < DHT_PULSES*2; i += 2) {
-        while (!pi_read(dht->pin))
+        while (!m_gpio->read(this->pin))
             if (++pulseCounts[i] >= DHT_MAXCOUNT) {
-                pi_default_priority();
-                return ERR_TIMEOUT;
+                m_gpio->defaultPriority();
+                throw string("Error timeout.");
             }
 
-        while (pi_read(dht->pin))
+        while (m_gpio->read(this->pin))
             if (++pulseCounts[i+1] >= DHT_MAXCOUNT) {
-                pi_default_priority();
-                return ERR_TIMEOUT;
+                m_gpio->defaultPriority();
+                throw string("Error timeout.");
             }
     }
-    pi_default_priority();
+    m_gpio->defaultPriority();
 
     for (uint8_t i = 2; i < DHT_PULSES*2; i += 2)
         threshold += pulseCounts[i];
@@ -102,17 +106,17 @@ int dht22_read_data(struct dht22 *dht, float *temp, float *hum)
     for (uint8_t i = 3; i < DHT_PULSES*2; i += 2) {
         uint8_t index = (i-3)/16;
 
-        dht->data[index] <<= 1;
+        this->data[index] <<= 1;
         if (pulseCounts[i] >= threshold)
-            dht->data[index] |= 1;
+            this->data[index] |= 1;
     }
 
-    if (dht->data[4] == ((dht->data[0] + dht->data[1] + dht->data[2] + dht->data[3]) & 0xFF)) {
-        *hum = (dht->data[0] * 256 + dht->data[1]) / 10.0f;
-        *temp = ((dht->data[2] & 0x7F) * 256 + dht->data[3]) / 10.0f;
-        if (dht->data[2] & 0x80)
-            *temp *= -1.0f;
+    if (this->data[4] == ((this->data[0] + this->data[1] + this->data[2] + this->data[3]) & 0xFF)) {
+        hum = (this->data[0] * 256 + this->data[1]) / 10.0f;
+        temp = ((this->data[2] & 0x7F) * 256 + this->data[3]) / 10.0f;
+        if (this->data[2] & 0x80)
+            temp *= -1.0f;
     } else
-        return -1;
-    return 0;
+        throw string("Can not read data.");
 }
+

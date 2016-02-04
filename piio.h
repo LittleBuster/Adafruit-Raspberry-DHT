@@ -12,6 +12,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #ifndef __PI_IO_H__
 #define __PI_IO_H__
 
@@ -23,8 +24,27 @@ enum io_errs {
 };
 
 
-class GPIO
+class IGPIO
 {
+public:
+    virtual void init(void) = 0;
+    virtual void setInput(const int gpio) = 0;
+    virtual void setOutput(const int gpio) = 0;
+    virtual void setHigh(const int gpio) = 0;
+    virtual void setLow(const int gpio) = 0;
+    virtual uint32_t read(const int gpio) = 0;
+    virtual void waitMillis(uint32_t millis) = 0;
+    virtual void sleepMillis(uint32_t millis) = 0;
+    virtual void maxPriority(void) = 0;
+    virtual void defaultPriority(void) = 0;
+};
+
+
+class GPIO: public IGPIO
+{
+private:
+    volatile uint32_t *m_gpio;
+
 public:
     /**
      * IO library initialization
@@ -33,7 +53,7 @@ public:
      * returns ERR_DEVMEM if fail init (need root)
      * returns ERR_MMAP if fail reading mmap
      */
-    static int init(void);
+    void init(void);
 
     /**
      * Set port in input mode
@@ -91,5 +111,6 @@ public:
      */
     void defaultPriority(void);
 };
+
 
 #endif
